@@ -1,6 +1,6 @@
 [all]
 arm_64bit=1
-dtparam=audio=off,i2c_arm=of,spi=off
+dtparam=audio=off,i2c_arm=off,spi=off
 dtoverlay=disable-wifi
 
 kernel=u-boot.bin
@@ -36,3 +36,8 @@ armstub=armstub8-gic.bin
 
 # Only support U1 and faster Micro SD cards
 dtparam=sd_overclock=100
+
+
+[cm4]
+# Enable USB 2.0 ports on CM4
+dtoverlay=dwc2,dr_mode=host
