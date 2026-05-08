@@ -282,6 +282,13 @@ zfs set \
 )
 
 
+# TAKE FACTORY RESET SNAPSHOT
+println "Taking 'factory reset' snapshot"
+(set -x
+zfs snapshot $POOL@factory
+)
+
+
 # CLEANUP ALL THE TEMPORARY STUFF WE DID
 cleanup
 trap - EXIT INT TERM
