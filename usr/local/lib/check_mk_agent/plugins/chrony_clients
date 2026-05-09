@@ -40,7 +40,7 @@ def seconds(s: str) -> int:
 def chronyc_clients() -> list[tuple[str, int]] | None:
     try:
         result = subprocess.run(
-            ["chronyc", "clients"],
+            ["chronyc", "-n", "clients"],
             capture_output=True, text=True, timeout=10, check=True
         )
     except Exception as e:
