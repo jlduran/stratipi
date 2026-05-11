@@ -6,9 +6,12 @@ ZPOOL=stratipi
 
 IMAGE_SIZE=3G
 
+VERSION_MAJOR=15
+VERSION_MINOR=1
+
 ARCH=aarch64
-ABI=FreeBSD:15:$ARCH
-OSVERSION=1500000
+ABI=FreeBSD:${VERSION_MAJOR}:$ARCH
+OSVERSION=${VERSION_MAJOR}0${VERSION_MINOR}000
 
 LABEL=$(echo "$ZPOOL" | tr '[:lower:]' '[:upper:]')
 
@@ -198,9 +201,7 @@ cp -v /usr/share/keys/pkgbase-15/trusted/* $ROOT/usr/share/keys/pkgbase-15/trust
 
 # PREPARE FREEBSD PKG CONFIGURATION
 mkdir -p $ROOT/etc/pkg
-cp -v /etc/pkg/FreeBSD.conf $ROOT/etc/pkg
-sed -i '' 's/: no/: yes/' $ROOT/etc/pkg/FreeBSD.conf
-sed -i '' 's/quarterly"/latest"/' $ROOT/etc/pkg/FreeBSD.conf
+cp -v $SCRIPT_DIR/etc/pkg/FreeBSD.conf $ROOT/etc/pkg/
 
 
 
