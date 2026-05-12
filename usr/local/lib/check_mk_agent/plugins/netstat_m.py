@@ -53,12 +53,12 @@ def parse_line(line: str) -> tuple[dict[str, int], str]:
 		keys = [k.strip() for k in keys_str.rstrip(")").split("/")]
 	else:
 		description = rest.strip()
-		keys = ['active']
+		keys = ['value']
 
 	result = {}
 	for k, v in zip(keys, values):
 		# "current" conflicts with CheckMK's electrical current metric name
-		result["active" if k == "current" else k] = v
+		result["value" if k == "current" else k] = v
 
 	return result, description
 
