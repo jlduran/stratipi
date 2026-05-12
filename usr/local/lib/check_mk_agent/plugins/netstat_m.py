@@ -73,7 +73,7 @@ def output_metric(name: str, kv: dict[str, int], state: int = 0, description: st
 		perf_parts.append(f"{k}={v}")
 
 	# Use description as human-readable summary (the verbose original text)
-	active_val = kv.get("active", None)
+	active_val = kv.get("value", None)
 	if active_val is not None:
 		display = f"{active_val} {description}" if description else str(active_val)
 	else:
