@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import subprocess
+import os
 
 
 now = __import__("time").time()
@@ -26,29 +27,42 @@ def seconds(sec: str) -> int:
 
 
 ################################################################################
-# Sub-process execution stuff. Get "chronyc clients" raw text and parse it
+# Sub-process execution stuff. Stream "chronyc clients" output line-by-line.
+# Uses Popen with a pipe so we never buffer the full output in memory.
 ################################################################################
 def chronyc_clients() -> list[tuple[str, int]] | None:
     try:
-        result = subprocess.run(
+        proc = subprocess.Popen(
             ["chronyc", "-n", "clients"],
-            capture_output=True, text=True, timeout=10, check=True
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            bufsize=1,  # line-buffered
         )
     except Exception as e:
         return None
 
     clients = []
 
-    for line in result.stdout.splitlines():
-        line = line.strip()
-        if (not line) or ("===" in line) or ("Hostname" in line):
-            continue
+    try:
+        for line in iter(proc.stdout.readline, ""):
+            line = line.strip()
+            if (not line) or ("===" in line) or ("Hostname" in line):
+                continue
 
-        parts = line.split()
-        if len(parts) < 6:
-            continue
+            parts = line.split()
+            if len(parts) < 6:
+                continue
 
-        clients.append((parts[0], now - seconds(parts[5])))
+            clients.append((parts[0], now - seconds(parts[5])))
+    except Exception as e:
+        proc.terminate()
+        return None
+
+    proc.wait()
+
+    if proc.returncode != 0:
+        return None
 
     return clients
 
@@ -102,9 +116,9 @@ def main():
     rates = {label: counts[label] / secs for label, secs in _windows}
 
     total = len(clients)
-    print(f'0 "Chrony clients" 1m={rates["1m"]:.4f}|5m={rates["5m"]:.2f}|15m={rates["15m"]:.2f}|1h={rates["1h"]:.2f} 1m: {rates["1m"]:.2f}, 5m: {rates["5m"]:.2f}, 15m: {rates["15m"]:.2f}, 1h: {rates["1h"]:.2f}')
-    print(f'0 "Chrony clients long-term" day={rates["day"]:.2f}|week={rates["week"]:.2f}|month={rates["month"]:.2f} Day: {rates["day"]:.2f}, Week: {rates["week"]:.2f}, Month: {rates["month"]:.2f}')
-    print(f'0 "Chrony clients total" total={total} Total clients: {total}')
+    print(f'0 "Chrony requests" 1m={rates["1m"]:.4f}|5m={rates["5m"]:.2f}|15m={rates["15m"]:.2f}|1h={rates["1h"]:.2f} 1m: {rates["1m"]:.2f}, 5m: {rates["5m"]:.2f}, 15m: {rates["15m"]:.2f}, 1h: {rates["1h"]:.2f}')
+    print(f'0 "Chrony requests long-term" day={rates["day"]:.2f}|week={rates["week"]:.2f}|month={rates["month"]:.2f} Day: {rates["day"]:.2f}, Week: {rates["week"]:.2f}, Month: {rates["month"]:.2f}')
+    print(f'0 "Chrony requests total" total={total} Total clients: {total}')
 
 
 
