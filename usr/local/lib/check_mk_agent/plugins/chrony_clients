@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
 
 import subprocess
-import os
 
 
-now = __import__("time").time()
+_WINDOWS = (
+    ("1m",           60),
+    ("5m",          300),
+    ("15m",         900),
+    ("1h",        3_600),
+    ("day",      86_400),
+    ("week",    604_800),
+    ("month", 2_592_000),
+)
+
+
 
 
 ################################################################################
@@ -27,10 +36,10 @@ def seconds(sec: str) -> int:
 
 
 ################################################################################
-# Sub-process execution stuff. Stream "chronyc clients" output line-by-line.
-# Uses Popen with a pipe so we never buffer the full output in memory.
+# Stream "chronyc clients" output line-by-line and bucket each client directly.
+# Counts flow straight from the pipe into the buckets.
 ################################################################################
-def chronyc_clients() -> list[tuple[str, int]] | None:
+def chronyc_clients() -> dict[str, int] | None:
     try:
         proc = subprocess.Popen(
             ["chronyc", "-n", "clients"],
@@ -39,10 +48,11 @@ def chronyc_clients() -> list[tuple[str, int]] | None:
             text=True,
             bufsize=1,  # line-buffered
         )
-    except Exception as e:
+    except Exception:
         return None
 
-    clients = []
+    counts = {label: 0 for label, _ in _WINDOWS}
+    total = 0
 
     try:
         for line in iter(proc.stdout.readline, ""):
@@ -54,8 +64,12 @@ def chronyc_clients() -> list[tuple[str, int]] | None:
             if len(parts) < 6:
                 continue
 
-            clients.append((parts[0], now - seconds(parts[5])))
-    except Exception as e:
+            age = seconds(parts[5])
+            total += 1
+            for label, secs in _WINDOWS:
+                if age <= secs:
+                    counts[label] += 1
+    except Exception:
         proc.terminate()
         return None
 
@@ -64,24 +78,7 @@ def chronyc_clients() -> list[tuple[str, int]] | None:
     if proc.returncode != 0:
         return None
 
-    return clients
-
-
-
-
-################################################################################
-# Count clients in each time window with a single pass.
-# For each client, increment every bucket whose threshold it qualifies for.
-################################################################################
-def count_clients(clients: list[tuple[str, int]], windows: tuple) -> dict[str, int]:
-    counts = {label: 0 for label, _ in windows}
-
-    for ip, last in clients:
-        age = now - last
-        for label, secs in windows:
-            if age <= secs:
-                counts[label] += 1
-
+    counts["_total"] = total
     return counts
 
 
@@ -91,31 +88,19 @@ def count_clients(clients: list[tuple[str, int]], windows: tuple) -> dict[str, i
 # Do all the things!
 ################################################################################
 def main():
-    clients = chronyc_clients()
+    counts = chronyc_clients()
 
     # Ya b0rkt it! :(
-    if clients is None:
-        print("2 \"Chrony clients\" Error querying chronyc")
-        print("2 \"Chrony clients long-term\" Error querying chronyc")
-        print("2 \"Chrony clients total\" Error querying chronyc")
+    if counts is None:
+        print("2 \"Chrony requests\" Error querying chronyc")
+        print("2 \"Chrony requests long-term\" Error querying chronyc")
+        print("2 \"Chrony requests total\" Error querying chronyc")
         return
 
-    _windows = (
-        ("1m",           60),
-        ("5m",          300),
-        ("15m",         900),
-        ("1h",        3_600),
-        ("day",      86_400),
-        ("week",    604_800),
-        ("month", 2_592_000),
-    )
-
-    counts = count_clients(clients, _windows)
-
     # Convert totals to requests/sec
-    rates = {label: counts[label] / secs for label, secs in _windows}
+    rates = {label: counts[label] / secs for label, secs in _WINDOWS}
 
-    total = len(clients)
+    total = counts["_total"]
     print(f'0 "Chrony requests" 1m={rates["1m"]:.4f}|5m={rates["5m"]:.2f}|15m={rates["15m"]:.2f}|1h={rates["1h"]:.2f} 1m: {rates["1m"]:.2f}, 5m: {rates["5m"]:.2f}, 15m: {rates["15m"]:.2f}, 1h: {rates["1h"]:.2f}')
     print(f'0 "Chrony requests long-term" day={rates["day"]:.2f}|week={rates["week"]:.2f}|month={rates["month"]:.2f} Day: {rates["day"]:.2f}, Week: {rates["week"]:.2f}, Month: {rates["month"]:.2f}')
     print(f'0 "Chrony requests total" total={total} Total clients: {total}')
