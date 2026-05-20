@@ -1,5 +1,4 @@
-/stratipi.img
-/stratipi.img.zst
-/pkg-manifest.txt
-/*.log
-
+*.img
+*.img.zst
+*.manifest
+*.log

@@ -16,6 +16,7 @@ OSVERSION=${VERSION_MAJOR}0${VERSION_MINOR}000
 LABEL=$(echo "$ZPOOL" | tr '[:lower:]' '[:upper:]')
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+BUILD_DIR="$SCRIPT_DIR/${ZPOOL}"
 IMAGE=$SCRIPT_DIR/${ZPOOL}.img
 LOG_FILE=$SCRIPT_DIR/${ZPOOL}.log
 PARTITION=mbr
@@ -77,10 +78,10 @@ cleanup() {
 
 # ALLOW TO RUN PARTS OF THIS SCRIPT AUTOMAGICALLY
 case "${1-}" in
-    "clean")
-        cleanup
-        exit 0
-        ;;
+	"clean")
+		cleanup
+		exit 0
+		;;
 esac
 
 
@@ -201,12 +202,12 @@ cp -v /usr/share/keys/pkgbase-15/trusted/* $ROOT/usr/share/keys/pkgbase-15/trust
 
 # PREPARE FREEBSD PKG CONFIGURATION
 mkdir -p $ROOT/etc/pkg
-cp -v $SCRIPT_DIR/etc/pkg/FreeBSD.conf $ROOT/etc/pkg/
+cp -v $BUILD_DIR/etc/pkg/FreeBSD.conf $ROOT/etc/pkg/
 
 
 
 # WARNING, DON'T MOVE THIS EARLIER IN THE SCRIPT
-# OR ELSE YOU RISK BREAKING YOUR ENTIRE OPERATING SYSTEM
+# OR ELSE YOU RISK BREAKING YOUR ENTIRE HOST OPERATING SYSTEM
 METALOG=$ROOT/$ZPOOL.metalog
 export METALOG
 export ABI
@@ -215,34 +216,34 @@ export OSVERSION
 
 # INSTALL PACKAGES
 println "Installing FreeBSD pkgbase and user packages"
-PACKAGES=$(sed 's/#.*//' $SCRIPT_DIR/pkglist)
+PACKAGES=$(sed 's/#.*//' "$BUILD_DIR/pkglist")
 [ -n "$PACKAGES" ] || { println "No packages to install!"; exit 1; }
 pkg -r $ROOT -o REPOS_DIR=$ROOT/etc/pkg install -y $PACKAGES
 
 
 # STORE PACKAGES/VERSIONS USED FOR THE BUILD IN AN AUDIT LOG
-pkg -r $ROOT query '%n-%v' > $SCRIPT_DIR/pkg-manifest.txt
+pkg -r $ROOT query '%n-%v' > "$SCRIPT_DIR/$ZPOOL.manifest"
 
 
 # FIX FILE/FOLDER PERMISSIONS FOR CUSTOM USERS
 println "Fixing file and folder permissions"
-$SCRIPT_DIR/uid.sh $METALOG $ROOT
+"$SCRIPT_DIR/uid.sh" "$METALOG" "$ROOT"
 rm $METALOG
 
 
 # BUILDING UBOOT ENV FILE
 println "Building uboot file"
 (set -x
-mkenvimage -s 16384 -o $SCRIPT_DIR/boot/efi/uboot.env $SCRIPT_DIR/boot/efi/uboot.txt
+mkenvimage -s 16384 -o "$BUILD_DIR/boot/efi/uboot.env" "$BUILD_DIR/boot/efi/uboot.txt"
 )
 
 
 # INSTALL THE OVERLAY FILESYSTEM
 println "Installing $ZPOOL files"
-touch $SCRIPT_DIR/var/db/last_time
-for f in $SCRIPT_DIR/*; do
-    [ -f $(basename -- "$f") ] && continue
-    cp -vRP "$f" $ROOT
+touch "$BUILD_DIR/var/db/last_time"
+for f in "$BUILD_DIR"/*; do
+	[ ! -d "$f" ] && continue
+	cp -vRP "$f" $ROOT
 done
 
 
