@@ -1,11 +1,5 @@
-```
-███████╗████████╗██████╗  █████╗ ████████╗██╗██████╗ ██╗
-██╔════╝╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝██║██╔══██╗██║
-███████╗   ██║   ██████╔╝███████║   ██║   ██║██████╔╝██║
-╚════██║   ██║   ██╔══██╗██╔══██║   ██║   ██║██╔═══╝ ██║
-███████║   ██║   ██║  ██║██║  ██║   ██║   ██║██║     ██║
-╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝     ╚═╝
-```
+![Stratipi Logo in Rainbow Colors](assets/stratipi-pride.png)
+
 
 Stratipi turns a Raspberry Pi into a highly accurate Stratum-1 NTP network time server by using a connected GPS receiver under FreeBSD.
 
