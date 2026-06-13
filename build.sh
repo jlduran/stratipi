@@ -30,7 +30,7 @@ COMPRESS=${compress:-"zstd-9"}
 LOGGING=${log:-0}
 while getopts :lc: opt; do
 	case "$opt" in
-		c) COMPRESS="$OPTARG" ;;
+		c) COMPRESS="${OPTARG#=}" ;;
 		l) LOGGING=1 ;;
 	esac
 done
