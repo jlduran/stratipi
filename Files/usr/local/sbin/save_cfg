@@ -1,0 +1,123 @@
+#!/bin/sh
+#
+# Copyright (c) 2006 Mathieu Arnold
+# Copyright (c) 2010 Alex Bakhtin
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+set -e
+
+mount /cfg
+trap "umount /cfg" 1 2 15 EXIT
+
+(
+cd /etc
+find . -type f 2>/dev/null | while read -r relative_path; do
+	filename="${relative_path#./}"
+	if [ ! -f "/cfg/${filename}" ] &&
+	    [ ! -f "/cfg/.ignore/${filename}" ]; then
+		#
+		# If file doesn't exist in /cfg and file is not in the "ignore"
+		# list then check if this file is exactly the same as original
+		# file in nanobsd image
+		#
+		if ! cmp -s "/etc/${filename}" "/conf/base/etc/${filename}"; then
+			file_path="${filename%/*}"
+			if [ "$file_path" != "$filename" ]; then
+				if [ ! -d "/etc/${file_path}" ]; then
+					printf "Error: Path /etc/%s is not a directory.\n" \
+					    "$file_path" >&2
+					exit 1;
+				fi
+			fi
+
+			#
+			# Ask user - how should we handle this file.
+			# Add to cfg (y/N/i/?)?
+			#	y) -> save this file in /cfg
+			#	n) -> do not save this file in /cfg for current
+			#	      script invocation ONLY (default)
+			#	i) -> add file to ignore list (/cfg/.ignore hierarchy)
+			#	      and never try to add this file to /cfg
+			#	?) -> print help
+			#
+			# touch is used to add files to /cfg to keep the script
+			# flow straight and easy
+			#
+			while true; do
+				printf "New file /etc/%s found. Add to /cfg (y/N/i/?)? " \
+				    "$filename" > /dev/tty
+				read -r key < /dev/tty
+				case "$key" in
+				[yY])
+					if [ "$file_path" != "$filename" ]; then
+						mkdir -p "/cfg/${file_path}" &&
+						    printf "Directory /etc/%s added to /cfg.\n" \
+						    "$file_path"
+					fi
+					touch "/cfg/${filename}" &&
+					    printf "File /etc/%s added to /cfg.\n" \
+					    "$filename"
+					break
+					;;
+				[iI])
+					mkdir -p /cfg/.ignore
+					if [ "$file_path" != "$filename" ]; then
+						mkdir -p "/cfg/.ignore/${file_path}"
+					fi
+					touch "/cfg/.ignore/${filename}" &&
+					    printf "File /etc/%s added to ignore list.\n" \
+					    "$filename"
+					break
+					;;
+				\?)
+					echo "  y - save this file in /cfg" > /dev/tty
+					echo "  n - do not save this file in /cfg for current" > /dev/tty
+					echo "      script invocation ONLY (default)" > /dev/tty
+					echo "  i - add file to ignore list (/cfg/.ignore hierarchy)" > /dev/tty
+					echo "      and never try to add this file to /cfg" > /dev/tty
+					echo "  ? - print help" > /dev/tty
+					;;
+				*) break ;;
+				esac
+			done
+		fi
+	fi
+done || exit 1
+
+#
+# Actually check all files in /cfg and save if necessary
+#
+cd /cfg
+find . -type f 2>/dev/null | while read -r relative_path; do
+	filename="${relative_path#./}"
+
+	case "$filename" in
+	.ignore/*) continue ;;
+	esac
+
+	if [ -f "/etc/${filename}" ]; then
+		cmp -s "/etc/${filename}" "/cfg/${filename}" ||
+		    cp -pfv "/etc/${filename}" "/cfg/${filename}"
+	else
+		#
+		# Give user an option to remove file from /cfg if this file is
+		# removed from /etc
+		#
+		printf "File /cfg/%s not found in /etc. Remove from /cfg (y/N)? " \
+		    "$filename" > /dev/tty
+		read -r key < /dev/tty
+		case "$key" in
+		[yY])
+			rm "/cfg/${filename}" &&
+			    printf "File /cfg/%s removed.\n" "$filename"
+			;;
+		esac
+	fi
+done
+)
+
+umount /cfg
+trap - 1 2 15 EXIT

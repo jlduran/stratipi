@@ -1,0 +1,11 @@
+. type=dir uname=root gname=wheel mode=0755
+./last_time type=file uname=root gname=wheel mode=0644
+./rc.conf type=file uname=root gname=wheel mode=0644
+./local type=dir uname=root gname=wheel mode=0755
+./local/chrony.conf type=file uname=root gname=wheel mode=0644
+./local/ptpd2_genet0.conf type=file uname=root gname=wheel mode=0644
+./local/ptpd2_ue0.conf type=file uname=root gname=wheel mode=0644
+./local/logrotate.d type=dir uname=root gname=wheel mode=0755
+./local/logrotate.d/chrony type=file uname=root gname=wheel mode=0644
+./local/syslog.d type=dir uname=root gname=wheel mode=0755
+./local/syslog.d/gpsd.conf type=file uname=root gname=wheel mode=0644

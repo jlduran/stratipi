@@ -1,0 +1,43 @@
+[all]
+arm_64bit=1
+dtparam=audio=off,i2c_arm=off,spi=off
+dtoverlay=disable-wifi
+
+kernel=u-boot.bin
+enable_uart=1
+
+
+# Allow the CPU to reach its maximum rated speed
+# And prevent idling down
+arm_boost=1
+force_turbo=1
+
+
+# Minimum GPU RAM allocation
+# We don't need graphics on this :P
+gpu_mem=16mb
+
+# HDMI Resolution 1280x720
+hdmi_force_hotplug=1
+hdmi_group=1
+hdmi_mode=4
+
+
+# Overlays for GPS UART and PPS
+dtoverlay=pps-gpio,gpiopin=4
+
+
+[pi3]
+core_freq=250
+
+
+[pi4]
+armstub=armstub8-gic.bin
+
+# Only support U1 and faster Micro SD cards
+dtparam=sd_overclock=100
+
+
+[cm4]
+# Enable USB 2.0 ports on CM4
+dtoverlay=dwc2,dr_mode=host

@@ -1,0 +1,25 @@
+# System Info
+arch=arm
+vendor=stratipi
+
+# Boot Logic
+boot_targets=mmc usb
+bootcmd=bootflow scan
+bootargs="console=tty1"
+preboot="pci enum; usb start; env set -e -nv ConIn usbkbd; env set -e -nv ConOut vidconsole"
+
+# FreeBSD Handover
+fdt_addr=4000
+fdt_addr_r=0x02600000
+kernel_addr_r=0x00080000
+loadaddr=0x1000000
+
+# UART Config
+baudrate=19200
+bootdelay=2
+stderr=vidconsole
+stdin=usbkbd
+stdout=vidconsole
+
+# Ignore Yubikeys (they do keyboard emulation)
+usb_ignorelist=0x1050:*,
