@@ -1,0 +1,23 @@
+#Extra Helper Stuff
+lang/python
+sysutils/logrotate
+security/ca_root_nss
+filesystems/zfs-stats
+devel/git@lite
+sysutils/eza
+editors/nano
+sysutils/screen
+sysutils/tmux
+
+#System Monitoring
+sysutils/bsdinfo
+sysutils/htop
+sysutils/ncdu2
+sysutils/sdmon
+
+#Stratipi Specific NTP Awesomeness
+net/chrony
+astro/gpsd@nox11
+net/ptpd2
+misc/gnu-watch
+sysutils/tty-clock

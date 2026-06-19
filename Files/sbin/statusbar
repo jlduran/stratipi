@@ -1,0 +1,82 @@
+#!/bin/sh
+
+# ANSI codes
+RST="\033[0m"
+INV="\033[46;30m"
+TXT="\033[36m"
+TTL="\033[94m"
+ERR="\033[31m"
+CLR="\033[K"
+ALT="${INV}ALT${RST}"
+VRT="\342\224\202"
+
+# Restore cursor on exit or Ctrl+C
+trap 'printf "\n\033[?25h"; exit' 0 1 2 15
+
+# Hide cursor
+printf "\033[?25l"
+
+
+while true; do
+	# Get the IP addresses
+	IP=$(ifconfig -u | awk -v e="$ERR" -v r="$RST" '
+	# Reset tracking vars at the start of a new interface block
+	/^[a-z0-9]/ {
+		if (ip_v4 && active) { exit } # Stop if we found a valid interface
+		ip_v4 = ""; active = 0
+	}
+
+	# Check interface status
+	/status: (active|associated)/ { active = 1 }
+
+	# Get the IPv4 address (ignoring loopback)
+	$1 == "inet" && $2 !~ /^127\./ { ip_v4 = $2 }
+
+	# Get the IPv6 addresses (ignoring link-local and loopback)
+	$1 == "inet6" && $2 !~ /^fe80:/ && $2 !~ /^::1/ {
+		# Extract the bare IP without interface scope
+		split($2, parts, "%")
+		ipv6_list[++v6_count] = parts[1]
+	}
+
+	# Format and output the final result at the end of parsing
+	END {
+		if (!active && !ip_v4 && v6_count == 0) {
+			print e "offline" r
+			exit
+		}
+
+		out = ip_v4
+		for (i = 1; i <= v6_count; i++) {
+			if (out != "") { out = out " | " }
+			out = out ipv6_list[i]
+		}
+		print out
+	}
+	')
+
+	LOAD=$(sysctl -n vm.loadavg | tr -d '{}' | xargs)
+	TEMP=$(sysctl -n dev.cpu.0.temperature 2>/dev/null || echo "?")
+
+	ZPOOL=$(
+		ZPOOL_LIST=$(zpool list -H 2>/dev/null)
+
+		# XXXJL zroot should be NANO_ZFSBOOT_POOL_NAME
+		if [ -n "$ZPOOL_LIST" ]; then
+			echo "$ZPOOL_LIST" | awk -v t="$TXT" -v r="$RST" '$1 == "zroot" {print t $3 r "/" t $2 r}'
+		else
+			df -h / | tail -n 1 | awk -v t="$TXT" -v r="$RST" '{print t $3 r "/" t $2 r}'
+		fi
+	)
+
+	# Print status line
+	printf "\t%b  $VRT  %b  $VRT  %b  $VRT  %b  $VRT  %b  $VRT  %b${CLR}\r" \
+		"${TTL}Terminal${RST} ${ALT}+${INV}F1${RST} - ${ALT}+${INV}F7${RST}" \
+		"${TTL}Status${RST} ${ALT}+${INV}F8${RST}" \
+		"${TTL}Load${RST} ${TXT}$LOAD${RST}" \
+		"${TTL}Temp${RST} ${TXT}$TEMP${RST}" \
+		"${TTL}ZFS${RST} $ZPOOL" \
+		"${TTL}IP${RST} ${TXT}$IP${RST}"
+
+	sleep 1
+done

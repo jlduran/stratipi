@@ -70,6 +70,8 @@ The dashboard also shows the output of `chronyc tracking`,  `chronyc sourcestats
 
 ![Stratipi Dashboard](https://github.com/user-attachments/assets/1bda3f1b-7b7b-4e52-bb79-0a1b7dce2a2a)
 
+![Stratipi NanoBSD_Screenshot](assets/stratipi-nanobsd-screenshot.png)
+
 ---
 
 ## Contributing

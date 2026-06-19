@@ -12,16 +12,16 @@ start_cmd="save_time_start"
 stop_cmd="save_time_stop"
 
 save_time_start() {
-	if [ -f /var/db/last_time ]; then
-		echo "Restoring time from /var/db/last_time"
-		NEW_TIME=$(/usr/bin/stat -f "%Sm" -t "%Y%m%d%H%M.%S" /var/db/last_time)
+	if [ -f "$last_time_file" ]; then
+		echo "Restoring time from ${last_time_file}"
+		NEW_TIME=$(/usr/bin/stat -f "%Sm" -t "%Y%m%d%H%M.%S" "$last_time_file")
 		/bin/date "${NEW_TIME}"
 	fi
 }
 
 save_time_stop() {
-	echo "Saving current time to /var/db/last_time"
-	touch /var/db/last_time
+	echo "Saving current time to ${last_time_file}"
+	touch "$last_time_file"
 }
 
 load_rc_config $name
