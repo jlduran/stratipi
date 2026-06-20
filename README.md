@@ -40,21 +40,21 @@ Stratipi turns a Raspberry Pi into a highly accurate Stratum-1 NTP network time 
 1. Flash Stratipi image onto the SD card.
 2. Insert flashed SD card into the Raspberry Pi.
 3. Attach the GPS HAT to the Raspberry Pi.
-3. Plug in Ethernet cable to Raspbery Pi.
+3. Plug in Ethernet cable to Raspberry Pi.
 4. Power on the Raspberry Pi.
 5. ...
 6. PROFIT!
 
 The Raspberry Pi will attempt to acquire an IPv4 address via DHCP automatically.
 
-`Chrony` NTP server will also start serving time as soon as the OS fully boots up, synced to other public NTP servers to start with. As soon as GPS signal is fully locked and registering in `gpsd`, `Chrony` will shift time syncronization over to `GPS`+`PPS` automatically. 
+`Chrony` NTP server will also start serving time as soon as the OS fully boots up, synced to other public NTP servers to start with. As soon as GPS signal is fully locked and registering in `gpsd`, `Chrony` will shift time synchronization over to `GPS`+`PPS` automatically.
 
 ---
 ## Using Stratipi
 
 Upon first bootup, Stratipi will automatically launch into a visual, non-interactive TUI dashboard to show system status.
 
-This dashboard will show the acquired DHCP IP address in the bottom status bar, the most important piece of information for using Stratipi as a time server. Along with this, the dashboard also shows the system load over 1/5/15 minutes, the CPU temperature, and the consumed/total storage. The temperature metrics over time may become important as crystal oscilators used for clocks can drift faster/slower as thermal characteristics change which can be seen in the "Frequency" ppm metric in the middle of the screen.
+This dashboard will show the acquired DHCP IP address in the bottom status bar, the most important piece of information for using Stratipi as a time server. Along with this, the dashboard also shows the system load over 1/5/15 minutes, the CPU temperature, and the consumed/total storage. The temperature metrics over time may become important as crystal oscillators used for clocks can drift faster/slower as thermal characteristics change which can be seen in the "Frequency" ppm metric in the middle of the screen.
 
 The dashboard also shows the output of `chronyc tracking`,  `chronyc sourcestats`, `chronyc sources`, `chronyc clients` as well as `cgps`. These combined should give a solid indication as to the health of the unit.
 
@@ -62,7 +62,7 @@ The dashboard also shows the output of `chronyc tracking`,  `chronyc sourcestats
 
 `chronyc sources` + `chronyc sourcestats` on the bottom: these are combined into a single displays and show what `chrony` is using to determine the current time, as well as the accuracy of each source. When GPS is locked, the "Last sample" column should eventually fall to around 500-1500 nanoseconds after the clock jitter has settled down. This may take several minutes to a few hours after bootup for the clocks to reach this level of accuracy.
 
-`chronyc tracking` on the very center: this displays how well the time is being applied to the local system clock as well as how accurate the clock is over time. 
+`chronyc tracking` on the very center: this displays how well the time is being applied to the local system clock as well as how accurate the clock is over time.
 
 `chronyc clients` on the middle-right: this displays the most recently connect clients to the server and how long ago their last query was.
 
@@ -75,7 +75,7 @@ The dashboard also shows the output of `chronyc tracking`,  `chronyc sourcestats
 ## Contributing
 
 Contributions are welcome.
-Please submit issues and pull requests ot make Stratipi more AWESOME!
+Please submit issues and pull requests to make Stratipi more AWESOME!
 
 ---
 
