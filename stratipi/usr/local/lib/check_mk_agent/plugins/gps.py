@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
 		# Which device we're using to get GPS data from
 		device = sky.get('device', 'Initialising...')
-		print(f'0 "GPS source" - Device used to aquire source data: {device}')
+		print(f'0 "GPS source" - Device used to acquire source data: {device}')
 
 		# Satellite count (visible / used / ratio)
 		visible		= len(sats)
@@ -142,7 +142,7 @@ if __name__ == "__main__":
 			print(f'2 "GPS signal" avg=0;25:;20:;0;50|min=0;20:;15:;0;50|max=0;0;0;0;50 Signal Strength: NO SIGNAL')
 
 	if data['sky'] is None:
-		print(f'2 "GPS source" - Device used to aquire source data: UNKNOWN')
+		print(f'2 "GPS source" - Device used to acquire source data: UNKNOWN')
 
 
 
