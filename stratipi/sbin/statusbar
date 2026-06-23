@@ -11,7 +11,7 @@ ALT="${INV}ALT${RST}"
 VRT="\342\224\202"
 
 # Restore cursor on exit or Ctrl+C
-trap 'printf "\033[?25h"; exit' 0 1 2 15
+trap 'printf "\n\033[?25h"; exit' 0 1 2 15
 
 # Hide cursor
 printf "\033[?25l"
@@ -31,12 +31,13 @@ while true; do
 	fi
 
 	LOAD=$(sysctl -n vm.loadavg | tr -d '{}' | xargs)
-	TEMP=$(sysctl -n dev.cpu.0.temperature)
+	TEMP=$(sysctl -n dev.cpu.0.temperature 2>/dev/null || echo "?")
 
 	ZPOOL=$(
-		zpool list | tail -n 1 |
+		zpool list 2>/dev/null | tail -n 1 |
 		awk -v t="$TXT" -v r="$RST" '{print t $3 r "/" t $2 r}'
 	)
+	[ -z "$ZPOOL" ] && ZPOOL="${TXT}?${RST}/${TXT}?${RST}"
 
 	# Print status line
 	printf "\t%b  $VRT  %b  $VRT  %b  $VRT  %b  $VRT  %b  $VRT  %b${CLR}\r" \
