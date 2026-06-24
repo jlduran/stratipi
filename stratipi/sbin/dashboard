@@ -8,7 +8,10 @@ OPTION="$TMUX set-option"
 SESSION="dashboard-$$"
 
 # Create a new tmux session with our current width/height
-ROOT=$($TMUX new-session -d -s $SESSION -x 148 -y 39 -P -F "#{pane_id}")
+ROOT=$($TMUX new-session -d -s $SESSION -x 148 -y 39 -P -F "#{pane_id}" \
+	\; set-option -ag terminal-overrides ',teken*:cud1=\E[1B' \
+	\; set-option -as terminal-overrides ',teken*:el=\E[K')
+
 TOP=$ROOT
 
 # Split out bottom pane first to ensure heights work
@@ -52,6 +55,7 @@ colors $LEFT1	black blue
 colors $LEFT2	black white
 colors $RIGHT1	black white
 colors $RIGHT2	black white
+colors $RIGHT3	black white
 colors $BOTTOM1	black white
 colors $BOTTOM2	black white
 
