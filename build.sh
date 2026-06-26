@@ -97,8 +97,9 @@ build() {
 
 
 # CREATE OUR TEMPORARY DIRECTORY
-ROOT=$(mktemp -d)
+ROOT=$(mktemp -d -t "${ZPOOL}")
 POOL=$(basename $ROOT)
+ZROOT=$(dirname $ROOT)
 
 
 # THINGS WE'LL NEED LATER ON IN THE SCRIPT
@@ -143,7 +144,6 @@ gpart show $DEVICE
 # SMALL O: ZPOOL PROPERTIES (PAY ATTENTION!)
 # BIG O: ZFS DATASET PROPERTIES
 println "Creating zpool: $ZPOOL ($POOL) on ${DEVICE}${SLICE}2"
-ZROOT=$(dirname $ROOT)
 (set -x
 zpool create -f \
   -o ashift=12 \
@@ -161,7 +161,6 @@ zpool set bootfs=$POOL $POOL
 )
 echo ''
 zpool list $POOL
-
 
 
 # CREATE AND MOUNT THE MSDOS FAT32 FILE SYSTEM
@@ -289,6 +288,12 @@ println "Taking 'factory reset' snapshot"
 (set -x
 zfs snapshot $POOL@factory
 )
+
+
+# SHOW ZPOOL HISTORY AS A FINAL AUDITING STEP
+println "zpool history"
+zpool history $POOL
+#zpool history -il $POOL
 
 
 # CLEANUP ALL THE TEMPORARY STUFF WE DID
