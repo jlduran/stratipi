@@ -44,7 +44,8 @@ find . -type f 2>/dev/null | while read -r relative_path; do
 			# touch is used to add files to /cfg to keep the script
 			# flow straight and easy
 			#
-			read -rp "New file /etc/${filename} found. Add to /cfg (y/n/i)? " key < /dev/tty
+			printf "New file /etc/%s found. Add to /cfg (y/n/i)? " "$filename" > /dev/tty
+			read -r key < /dev/tty
 			case "$key" in
 			[yY])
 				if [ "$file_path" != "$filename" ]; then
