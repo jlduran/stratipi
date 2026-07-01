@@ -63,3 +63,6 @@
 ./usr/local/sbin/update type=file uname=root gname=wheel mode=0555
 ./usr/local/sbin/updatep1 type=file uname=root gname=wheel mode=0555
 ./usr/local/sbin/updatep2 type=file uname=root gname=wheel mode=0555
+./var type=dir uname=root gname=wheel mode=0755
+./var/db type=dir uname=root gname=wheel mode=0755
+./var/db/chrony type=dir uid=849 gid=849 mode=0755
