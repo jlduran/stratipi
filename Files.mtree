@@ -16,8 +16,6 @@
 ./etc/cron.d/tmux_refresh type=file uname=root gname=wheel mode=0644
 ./etc/defaults type=dir uname=root gname=wheel mode=0755
 ./etc/defaults/vendor.conf type=file uname=root gname=wheel mode=0644
-./etc/rc.d type=dir uname=root gname=wheel mode=0755
-./etc/rc.d/gptboot type=file uname=root gname=wheel mode=0555
 ./root type=dir uname=root gname=wheel mode=0750
 ./root/.sh_history type=file uname=root gname=wheel mode=0600
 ./root/.config type=dir uname=root gname=wheel mode=0755
