@@ -3,7 +3,7 @@ hw.usb.template=3
 umodem_load="YES"
 
 # Console ONLY on video! Serial is for GPS!
-console="vidconsole"
+console="efi"
 boot_multicons="NO"
 boot_serial="NO"
 hw.fdt.console="NO"
