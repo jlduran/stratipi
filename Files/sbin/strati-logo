@@ -1,3 +1,50 @@
 #!/bin/sh
-/usr/bin/printf "%s" "$(sed 's/^/   /' /etc/motd)"
-/usr/bin/tail -f /dev/null
+
+MOTD_FILE="/etc/motd.template"
+
+# Delay start
+sleep 1
+
+# Clear the screen
+clear
+
+# Grab terminal dimensions
+TERM_ROWS=$(tput lines)
+TERM_COLS=$(tput cols)
+
+# Calculate the height of the ASCII art
+ART_ROWS=$(wc -l < "$MOTD_FILE")
+
+# Top and bottom padding
+TOP_PADDING=$(( (TERM_ROWS - ART_ROWS) / 2 ))
+BOTTOM_PADDING=$(( TERM_ROWS - ART_ROWS - TOP_PADDING ))
+
+# Print top vertical padding
+i=0
+while [ $i -lt $TOP_PADDING ]; do
+    echo ""
+    i=$((i + 1))
+done
+
+# Center horizontally
+awk -v cols="$TERM_COLS" '
+{
+    visual_len = length($0) - 2
+    if (visual_len > 100) { visual_len = 55 }
+
+    # Calculate required left-padding spaces
+    pad = int((cols - visual_len) / 2)
+
+    # Print the spaces followed by the line
+    if (pad >= 2) { pad = pad - 2 }
+    printf "%*s%s\n", pad, "", $0
+}' "$MOTD_FILE"
+
+# Print bottom vertical padding
+j=1
+while [ $j -lt $BOTTOM_PADDING ]; do
+    echo ""
+    j=$((j + 1))
+done
+
+exec /usr/bin/tail -f /dev/null
