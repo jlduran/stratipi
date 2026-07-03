@@ -11,6 +11,11 @@ return {
 			},
 			requires_color = false,
 			shift = {x = -8, y = 0},
+		},
+		fb = {
+			image = "/boot/images/stratipi-pride.png",
+			width = 80,
+			shift = {x = 2, y = 0},
 		}
 	}
 }
