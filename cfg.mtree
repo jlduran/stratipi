@@ -9,3 +9,6 @@
 ./local/logrotate.d/chrony type=file uname=root gname=wheel mode=0644
 ./local/syslog.d type=dir uname=root gname=wheel mode=0755
 ./local/syslog.d/gpsd.conf type=file uname=root gname=wheel mode=0644
+./ssh type=dir uname=root gname=wheel mode=0755
+./ssh/authorized_keys type=dir uname=root gname=wheel mode=0755
+./ssh/authorized_keys/root type=file uname=root gname=wheel mode=0600
