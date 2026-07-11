@@ -9,7 +9,7 @@ while true; do
 
 	(
 	echo "Clients: $CLIENTS,Pkts,Last"
-	chronyc clients | awk 'NR>2 && $1 !~ /^=/ {
+	chronyc -n clients | awk 'NR>2 && $1 !~ /^=/ {
 		val=$6; num=val; sub(/[y|d|h|m|s]$/,"",num);
 		unit=substr(val,length(val));
 

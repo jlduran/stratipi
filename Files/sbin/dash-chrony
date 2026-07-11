@@ -5,11 +5,11 @@ CEOL=$(printf '\033[K')
 while true; do
 	printf "\033[H"
 
-	chronyc sourcestats | awk -v cl="$CEOL" '
+	chronyc -n sourcestats | awk -v cl="$CEOL" '
 		NR==1	{ h1=$0; match($0, /NP/); start=RSTART }
 		NR>2	{ s[$1]=substr($0, start) }
 		END {
-			while (("chronyc sources" | getline) > 0) {
+			while (("chronyc -n sources" | getline) > 0) {
 				row++;
 				if (row==1) printf "      %-81s%s%s", $0, substr(h1, start), cl;
 				else if ($0 ~ /^[#^]/) printf "\n      %-81s%s%s", $0, s[$2], cl
