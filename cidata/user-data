@@ -1,0 +1,10 @@
+#cloud-config
+users:
+  - name: jlduran
+    gecos: Jose Luis Duran
+    sudo: ALL=(ALL:ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      - sk-ecdsa-sha2-nistp256@openssh.com AAAAInNrLWVjZHNhLXNoYTItbmlzdHAyNTZAb3BlbnNzaC5jb20AAAAIbmlzdHAyNTYAAABBBIMHJgsdC8AqewxcD5kpy/AC2gLSur+vG8F72I94KKYFIhEikgRC3AfHdC6uCcYCSHjQeWAnMR/PETEhdAvlk00AAAAEc3NoOg==
+runcmd:
+  - service sshd enable
+  - touch /firstboot-reboot

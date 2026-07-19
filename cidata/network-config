@@ -1,0 +1,4 @@
+version: 2
+ethernets:
+  wlan0:
+    dhcp4: true
